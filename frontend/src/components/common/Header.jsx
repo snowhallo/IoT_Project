@@ -1,0 +1,14 @@
+import React from 'react';
+
+export default function Header({ title, subtitle }) {
+  return (
+    <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div>
+        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+          {title}
+        </h2>
+        {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
+      </div>
+    </header>
+  );
+}
