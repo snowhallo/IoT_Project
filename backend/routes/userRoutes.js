@@ -1,7 +1,11 @@
 import express from 'express';
 import { getProfile, updateProfile } from '../controllers/userController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+// Bắt buộc tất cả API thông tin người dùng phải có Token xác thực JWT
+router.use(verifyToken);
 
 /**
  * @openapi
@@ -10,6 +14,8 @@ const router = express.Router();
  *     summary: Lấy thông tin cá nhân sinh viên và 3 liên kết tài nguyên (Github, Figma, PDF Report)
  *     tags:
  *       - Profile
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Thông tin hồ sơ sinh viên
@@ -23,6 +29,12 @@ const router = express.Router();
  *                   example: true
  *                 data:
  *                   $ref: '#/components/schemas/Profile'
+ *       401:
+ *         description: Không tìm thấy Token xác thực hoặc Token không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Không tìm thấy thông tin sinh viên
  *         content:
@@ -39,6 +51,8 @@ const router = express.Router();
  *     summary: Cập nhật thông tin hồ sơ sinh viên
  *     tags:
  *       - Profile
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -84,6 +98,12 @@ const router = express.Router();
  *                 message:
  *                   type: string
  *                   example: 'Cập nhật thông tin sinh viên thành công'
+ *       401:
+ *         description: Không tìm thấy Token xác thực hoặc Token không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: Lỗi máy chủ
  *         content:

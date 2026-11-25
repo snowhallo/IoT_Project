@@ -19,7 +19,7 @@ export default function ProfileInfo({ profile, onUpdateProfile }) {
 
   return (
     <Card
-      title="Thông Tin Sinh Viên Thực Hiện"
+      title="Thông tin sinh viên"
       action={
         <Button
           variant={isEditing ? 'success' : 'outline'}
@@ -30,12 +30,12 @@ export default function ProfileInfo({ profile, onUpdateProfile }) {
           {isEditing ? (
             <>
               <Check className="w-3.5 h-3.5" />
-              Lưu Thông Tin
+              Lưu
             </>
           ) : (
             <>
               <Edit3 className="w-3.5 h-3.5" />
-              Chỉnh Sửa
+              Sửa thông tin
             </>
           )}
         </Button>
@@ -44,12 +44,18 @@ export default function ProfileInfo({ profile, onUpdateProfile }) {
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6 pt-2">
         {/* Avatar */}
         <div className="w-24 h-24 rounded-xl overflow-hidden border-2 border-slate-200 shadow-sm bg-slate-300 flex items-center justify-center shrink-0">
-          {hasAvatar ? (
+          {!imageError ? (
             <img
-              src={profile.avatarUrl}
+              src={profile.avatarUrl || '/avatar.JPG'}
               alt={profile.fullName}
               className="w-full h-full object-cover"
-              onError={() => setImageError(true)}
+              onError={(e) => {
+                if (!e.target.src.includes('avatar.JPG')) {
+                  e.target.src = '/avatar.JPG';
+                } else {
+                  setImageError(true);
+                }
+              }}
             />
           ) : (
             <User className="w-12 h-12 text-white" />
@@ -86,7 +92,7 @@ export default function ProfileInfo({ profile, onUpdateProfile }) {
                 />
               </div>
               <div>
-                <label className="block text-slate-600 mb-1 font-medium">Trường Đào Tạo:</label>
+                <label className="block text-slate-600 mb-1 font-medium">Trường:</label>
                 <Input
                   type="text"
                   value={formData.school}
@@ -115,7 +121,7 @@ export default function ProfileInfo({ profile, onUpdateProfile }) {
                 <div className="flex items-center gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200">
                   <GraduationCap className="w-5 h-5 text-blue-600 shrink-0" />
                   <div>
-                    <div className="text-[11px] text-slate-500">Mã Sinh Viên</div>
+                    <div className="text-[11px] text-slate-500">Mã sinh viên</div>
                     <div className="text-sm font-mono font-bold text-slate-800">{profile.studentId}</div>
                   </div>
                 </div>
@@ -123,7 +129,7 @@ export default function ProfileInfo({ profile, onUpdateProfile }) {
                 <div className="flex items-center gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200">
                   <User className="w-5 h-5 text-indigo-600 shrink-0" />
                   <div>
-                    <div className="text-[11px] text-slate-500">Lớp Sinh Hoạt</div>
+                    <div className="text-[11px] text-slate-500">Lớp</div>
                     <div className="text-sm font-semibold text-slate-800">{profile.className}</div>
                   </div>
                 </div>
@@ -131,7 +137,7 @@ export default function ProfileInfo({ profile, onUpdateProfile }) {
                 <div className="flex items-center gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200 sm:col-span-2">
                   <School className="w-5 h-5 text-teal-600 shrink-0" />
                   <div>
-                    <div className="text-[11px] text-slate-500">Đơn Vị Đào Tạo</div>
+                    <div className="text-[11px] text-slate-500">Trường</div>
                     <div className="text-sm font-medium text-slate-800">{profile.school}</div>
                   </div>
                 </div>

@@ -28,33 +28,44 @@ CREATE TABLE `users` (
   `avatar_url` VARCHAR(255) DEFAULT NULL,
   `github_link` VARCHAR(255) DEFAULT NULL,
   `figma_link` VARCHAR(255) DEFAULT NULL,
+  `postman_link` VARCHAR(255) DEFAULT NULL,
   `pdf_link` VARCHAR(255) DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ==============================================================================
 -- 2. BẢNG SENSORS: Cấu hình và định nghĩa danh mục cảm biến trong hệ thống
+-- Ràng buộc Khóa ngoại (FK): user_id -> users(id)
 -- ==============================================================================
 CREATE TABLE `sensors` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NOT NULL DEFAULT 1,
   `sensor_name` VARCHAR(50) NOT NULL,         -- Ví dụ: Nhiệt độ, Độ ẩm, Ánh sáng
   `code` VARCHAR(30) NOT NULL UNIQUE,         -- temperature, humidity, light
   `unit` VARCHAR(20) NOT NULL,                -- °C, %, Lux
   `pin_gpio` VARCHAR(20) DEFAULT NULL,        -- GPIO 15, ADC 34
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_sensors_user`
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ==============================================================================
 -- 3. BẢNG DEVICES: Quản lý danh sách thiết bị phần cứng có thể điều khiển
+-- Ràng buộc Khóa ngoại (FK): user_id -> users(id)
 -- ==============================================================================
 CREATE TABLE `devices` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NOT NULL DEFAULT 1,
   `device_name` VARCHAR(50) NOT NULL,         -- Ví dụ: Đèn LED 1, Quạt làm mát, Đèn LED 2
   `type` VARCHAR(30) NOT NULL,                -- led, fan, relay
   `pin_gpio` VARCHAR(20) NOT NULL,            -- GPIO 2, GPIO 4, GPIO 5
   `status` TINYINT(1) NOT NULL DEFAULT 0,     -- 0: TẮT (OFF), 1: BẬT (ON)
   `description` VARCHAR(255) DEFAULT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_devices_user`
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ==============================================================================

@@ -1,7 +1,11 @@
 import express from 'express';
 import { getHistory } from '../controllers/historyController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+// Bắt buộc xác thực JWT Token cho toàn bộ API lịch sử điều khiển
+router.use(verifyToken);
 
 /**
  * @openapi
@@ -10,6 +14,8 @@ const router = express.Router();
  *     summary: Tra cứu lịch sử điều khiển thiết bị (Bắt buộc chuẩn 5 cột dữ liệu)
  *     tags:
  *       - History
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: search
@@ -53,6 +59,8 @@ const router = express.Router();
  *                     $ref: '#/components/schemas/HistoryItem'
  *                 pagination:
  *                   $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         description: Không tìm thấy Token xác thực hoặc Token không hợp lệ
  *       500:
  *         description: Lỗi máy chủ
  *         content:

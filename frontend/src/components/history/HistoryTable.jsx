@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import Badge from '../common/Badge';
-import { AlertCircle, Lightbulb } from 'lucide-react';
+import { AlertCircle, Lightbulb, ArrowUpDown, ArrowUp, ArrowDown, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   Table,
   TableHeader,
@@ -16,7 +17,19 @@ import {
  * Đầy đủ 5 cột bắt buộc:
  * 1. ID | 2. Tên Thiết Bị | 3. Action (BẬT/TẮT) | 4. Status (BẬT/TẮT) | 5. Thời Gian
  */
-export default function HistoryTable({ data }) {
+export default function HistoryTable({ data, timeSortOrder = 'none', onToggleTimeSort }) {
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopyTime = (timeStr, id) => {
+    if (!timeStr || timeStr === 'N/A') return;
+    navigator.clipboard.writeText(timeStr);
+    setCopiedId(id);
+    toast.success(`Đã sao chép: ${timeStr}`);
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 1500);
+  };
+
   if (!data || data.length === 0) {
     return (
       <div className="py-12 text-center text-slate-500">
@@ -35,7 +48,22 @@ export default function HistoryTable({ data }) {
           <TableHead>Tên Thiết Bị</TableHead>
           <TableHead>Hành Động (Action)</TableHead>
           <TableHead>Trạng Thái Phản Hồi (Status)</TableHead>
-          <TableHead>Thời Gian Thực Hiện</TableHead>
+          <TableHead
+            onClick={onToggleTimeSort}
+            className="cursor-pointer select-none hover:bg-slate-50 transition-colors group"
+            title="Sắp xếp theo thời gian thực hiện"
+          >
+            <div className="inline-flex items-center gap-1.5">
+              <span>Thời Gian Thực Hiện</span>
+              {timeSortOrder === 'asc' ? (
+                <ArrowUp className="w-3.5 h-3.5 text-slate-700" />
+              ) : timeSortOrder === 'desc' ? (
+                <ArrowDown className="w-3.5 h-3.5 text-slate-700" />
+              ) : (
+                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+              )}
+            </div>
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -66,16 +94,41 @@ export default function HistoryTable({ data }) {
                 </Badge>
               </TableCell>
 
-              {/* 4. Status (BẬT / TẮT) */}
+              {/* 4. Status (BẬT / TẮT / TIMEOUT) */}
               <TableCell>
-                <Badge variant={isStatusOn ? 'success' : 'default'} size="sm">
+                <Badge
+                  variant={
+                    row.status === 'TIMEOUT'
+                      ? 'danger'
+                      : isStatusOn
+                      ? 'success'
+                      : 'default'
+                  }
+                  size="sm"
+                >
                   {row.status}
                 </Badge>
               </TableCell>
 
               {/* 5. Thời Gian */}
               <TableCell className="font-mono text-slate-600">
-                {formattedTime}
+                <div className="flex items-center gap-2">
+                  <span>{formattedTime}</span>
+                  {formattedTime !== 'N/A' && (
+                    <button
+                      type="button"
+                      onClick={() => handleCopyTime(formattedTime, row.id)}
+                      title="Sao chép mốc thời gian"
+                      className="p-1 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors"
+                    >
+                      {copiedId === row.id ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           );

@@ -1,7 +1,11 @@
 import express from 'express';
 import { getDevices, toggleDevice } from '../controllers/deviceController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+// Bắt buộc xác thực JWT Token cho toàn bộ API điều khiển thiết bị
+router.use(verifyToken);
 
 /**
  * @openapi
@@ -10,6 +14,8 @@ const router = express.Router();
  *     summary: Lấy danh sách thiết bị và trạng thái BẬT/TẮT hiện tại
  *     tags:
  *       - Devices
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Danh sách các thiết bị trong hệ thống
@@ -25,6 +31,8 @@ const router = express.Router();
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Device'
+ *       401:
+ *         description: Không tìm thấy Token xác thực hoặc Token không hợp lệ
  *       500:
  *         description: Lỗi máy chủ
  *         content:
@@ -41,6 +49,8 @@ router.get('/devices', getDevices);
  *     summary: Điều khiển BẬT/TẮT thiết bị (Cập nhật DB và Publish lệnh MQTT tới ESP32)
  *     tags:
  *       - Devices
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -84,6 +94,8 @@ router.get('/devices', getDevices);
  *                     status:
  *                       type: boolean
  *                       example: true
+ *       401:
+ *         description: Không tìm thấy Token xác thực hoặc Token không hợp lệ
  *       404:
  *         description: Không tìm thấy thiết bị
  *         content:

@@ -26,3 +26,9 @@ export function broadcastSensorData(data) {
     io.emit('sensor_update', data);
   }
 }
+
+export function broadcastDeviceStatus(data) {
+  if (io) {
+    io.emit('device_status_update', data);
+  }
+}

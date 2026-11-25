@@ -6,24 +6,40 @@ import { pool } from '../config/db.js';
  */
 export async function getHistory(req, res) {
   try {
-    const { search, action, page = 1, limit = 10 } = req.query;
+    const { device, time, search, action, status, page = 1, limit = 10 } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
 
     let whereClauses = [];
     let queryParams = [];
 
-    // 1. Lọc theo Hành động (BẬT / TẮT)
+    // 1. Lọc theo Thiết bị (Device ID hoặc Device Name)
+    if (device && device !== 'all') {
+      if (!isNaN(Number(device))) {
+        whereClauses.push('h.device_id = ?');
+        queryParams.push(Number(device));
+      } else {
+        whereClauses.push('d.device_name = ?');
+        queryParams.push(device);
+      }
+    }
+
+    // 2. Tìm kiếm theo Mốc thời gian cắt dần (Prefix Time Search)
+    const timeQuery = time || search;
+    if (timeQuery && timeQuery.trim()) {
+      whereClauses.push("DATE_FORMAT(h.created_at, '%Y-%m-%d %H:%i:%s') LIKE ?");
+      queryParams.push(`${timeQuery.trim()}%`);
+    }
+
+    // 3. Lọc theo Hành động gửi đi (Action: BẬT, TẮT)
     if (action && action !== 'all') {
       whereClauses.push('h.action = ?');
       queryParams.push(action);
     }
 
-    // 2. Tìm kiếm theo Tên thiết bị HOẶC theo Mốc thời gian cắt dần
-    if (search && search.trim()) {
-      whereClauses.push(
-        "(d.device_name LIKE ? OR DATE_FORMAT(h.created_at, '%Y-%m-%d %H:%i:%s') LIKE ?)"
-      );
-      queryParams.push(`%${search.trim()}%`, `${search.trim()}%`);
+    // 4. Lọc theo Trạng thái phản hồi (Status: BẬT, TẮT, TIMEOUT)
+    if (status && status !== 'all') {
+      whereClauses.push('h.status = ?');
+      queryParams.push(status);
     }
 
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';

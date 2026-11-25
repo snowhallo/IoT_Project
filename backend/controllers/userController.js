@@ -23,13 +23,20 @@ export async function getProfile(req, res) {
         studentId: user.student_id,
         className: user.class_name,
         school: user.school,
-        avatarUrl: user.avatar_url,
+        avatarUrl: user.avatar_url || '/avatar.JPG',
         projectName: 'Hệ Thống Giám Sát Môi Trường & Điều Khiển Thiết Bị IoT (ESP32)',
-        description: 'Đo nhiệt độ, độ ẩm, ánh sáng và điều khiển 2 đèn LED qua MQTT.',
+        description: 'Đo nhiệt độ, độ ẩm, ánh sáng và điều khiển 3 đèn LED qua MQTT.',
         links: {
-          github: user.github_link || 'https://github.com/your-username/iot-esp32-project',
+          github: user.github_link && !user.github_link.includes('your-username')
+            ? user.github_link
+            : 'https://github.com/snowhallo/IoT_Project',
           figma: user.figma_link || 'https://www.figma.com/design/iA8pnBFROtTySO9LWuCat2/IoT_Project?node-id=0-1&t=3yXPG0hfRfMj34xh-1',
-          pdfReport: user.pdf_link || 'https://drive.google.com/file/d/sample-iot-report-pdf/view',
+          postman:
+            user.postman_link ||
+            'https://www.postman.com/orbital-module-astronaut-7150237-s-team/iot/documentation/g22escv/iot-esp32-smart-monitoring-device-control-api',
+          pdfReport: user.pdf_link && !user.pdf_link.includes('sample-iot-report-pdf')
+            ? user.pdf_link
+            : 'https://drive.google.com/drive/u/1/folders/1vq5omX9j8ebJ3Qua_N4YeqqL9p5pguI5',
         },
       },
     });

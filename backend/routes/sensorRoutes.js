@@ -1,7 +1,11 @@
 import express from 'express';
 import { getSensors, getDataSensors } from '../controllers/sensorController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+// Bắt buộc xác thực JWT Token cho toàn bộ API cảm biến
+router.use(verifyToken);
 
 /**
  * @openapi
@@ -10,6 +14,8 @@ const router = express.Router();
  *     summary: Lấy danh sách cấu hình cảm biến và giá trị đo mới nhất
  *     tags:
  *       - Sensors
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Danh sách cảm biến cùng giá trị hiện thời
@@ -25,6 +31,8 @@ const router = express.Router();
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Sensor'
+ *       401:
+ *         description: Không tìm thấy Token xác thực hoặc Token không hợp lệ
  *       500:
  *         description: Lỗi máy chủ
  *         content:
@@ -41,6 +49,8 @@ router.get('/sensors', getSensors);
  *     summary: Tra cứu log dữ liệu đo đạc cảm biến (Hỗ trợ Lọc loại, Tìm kiếm thời gian cắt dần, Phân trang)
  *     tags:
  *       - Data Sensors
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: type
@@ -84,6 +94,8 @@ router.get('/sensors', getSensors);
  *                     $ref: '#/components/schemas/DataSensor'
  *                 pagination:
  *                   $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         description: Không tìm thấy Token xác thực hoặc Token không hợp lệ
  *       500:
  *         description: Lỗi máy chủ
  *         content:

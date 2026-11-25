@@ -14,13 +14,15 @@ import Card from '../common/Card';
 export default function EnvChart({ chartData = [] }) {
   return (
     <Card
-      title="Biểu Đồ Môi Trường Thời Gian Thực"
+      title="Biểu đồ thông số cảm biến"
+      className="p-3.5 md:p-4"
+      headerClassName="pb-1.5 mb-2"
     >
-      <div className="w-full h-80">
+      <div className="w-full h-48 md:h-52">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 10, right: 15, left: -10, bottom: 5 }}
+            margin={{ top: 5, right: 15, left: -10, bottom: 0 }}
           >
             {/* 1. Định nghĩa bộ lọc chuyển màu Linear Gradients */}
             <defs>
@@ -60,33 +62,51 @@ export default function EnvChart({ chartData = [] }) {
               tickFormatter={(v) => `${v}`}
             />
 
-            {/* Trục Y Phải: 0 - 1000 (Lux) */}
+            {/* Trục Y Phải: Ánh sáng (Lux) - Co giãn linh hoạt theo giá trị vật lý thực tế */}
             <YAxis
               yAxisId="right"
               orientation="right"
-              domain={[0, 1000]}
+              domain={[0, (dataMax) => (dataMax ? Math.max(Math.ceil(dataMax / 500) * 500, 1500) : 1500)]}
               stroke="#94a3b8"
               tick={{ fill: '#d97706', fontSize: 11 }}
               tickFormatter={(v) => `${v} lx`}
             />
 
             <Tooltip
+              formatter={(value, name) => {
+                if (name.includes('Nhiệt độ')) return [`${value} °C`, name];
+                if (name.includes('Độ ẩm')) return [`${value} %`, name];
+                if (name.includes('Ánh sáng')) return [`${value} Lux`, name];
+                return [value, name];
+              }}
               contentStyle={{
                 backgroundColor: '#ffffff',
-                borderColor: '#e2e8f0',
-                borderRadius: '0.5rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
                 fontSize: '12px',
               }}
               labelStyle={{ fontWeight: 600, color: '#334155', marginBottom: '4px' }}
             />
 
-            {/* Legend tích hợp của Recharts */}
             <Legend
               verticalAlign="top"
               align="right"
-              iconType="circle"
-              wrapperStyle={{ paddingBottom: '10px', fontSize: '12px' }}
+              content={() => (
+                <div className="flex items-center justify-end gap-4 text-xs pb-2.5 select-none">
+                  <div className="flex items-center gap-1.5 text-[#ea580c] font-medium">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#ea580c] inline-block shrink-0" />
+                    <span>Nhiệt độ (°C)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[#d97706] font-medium">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#eab308] inline-block shrink-0" />
+                    <span>Ánh sáng (Lux)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[#0891b2] font-medium">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#06b6d4] inline-block shrink-0" />
+                    <span>Độ ẩm (%)</span>
+                  </div>
+                </div>
+              )}
             />
 
             {/* 1. Vùng Nhiệt độ (Trục trái 0-100) */}

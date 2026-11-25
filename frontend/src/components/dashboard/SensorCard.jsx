@@ -1,5 +1,5 @@
 import React from 'react';
-import { Thermometer, Droplets, Sun } from 'lucide-react';
+import { Thermometer, Droplets, Sun, Wind } from 'lucide-react';
 import Card from '../common/Card';
 
 export default function SensorCard({ sensor }) {
@@ -26,28 +26,33 @@ export default function SensorCard({ sensor }) {
       textColor: 'text-amber-600',
       IconComponent: Sun,
     },
+    gas: {
+      bgIcon: 'bg-purple-50 text-purple-600 border border-purple-200',
+      textColor: 'text-purple-600',
+      IconComponent: Wind,
+    },
   };
 
   const config = themeConfig[code] || themeConfig.temperature;
   const Icon = config.IconComponent;
 
   return (
-    <Card className="hover:border-slate-300 transition-all p-5">
+    <Card className="hover:border-slate-300 transition-all p-3.5 md:p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-semibold text-slate-600">{name}</h4>
+          <h4 className="text-xs md:text-sm font-semibold text-slate-600">{name}</h4>
           {/* Giá trị số lớn */}
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className={`text-3xl font-extrabold tracking-tight ${config.textColor}`}>
+          <div className="mt-1 flex items-baseline gap-1.5">
+            <span className={`text-2xl md:text-3xl font-extrabold tracking-tight ${config.textColor}`}>
               {typeof currentValue === 'number' ? currentValue.toLocaleString() : currentValue}
             </span>
-            <span className="text-base font-bold text-slate-500">{unit}</span>
+            <span className="text-sm md:text-base font-bold text-slate-500">{unit}</span>
           </div>
         </div>
 
         {/* Icon hộp màu */}
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${config.bgIcon} shrink-0`}>
-          <Icon className="w-6 h-6" />
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${config.bgIcon} shrink-0`}>
+          <Icon className="w-5 h-5" />
         </div>
       </div>
     </Card>

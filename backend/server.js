@@ -1,4 +1,5 @@
 import http from 'http';
+// MQTT Live Sync connected to broker.hivemq.com:1883
 import dotenv from 'dotenv';
 import app from './app.js';
 import { testDbConnection } from './config/db.js';

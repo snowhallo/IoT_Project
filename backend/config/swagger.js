@@ -28,6 +28,10 @@ Tài liệu REST API cho Hệ thống Giám sát Môi trường & Điều khiể
   ],
   tags: [
     {
+      name: 'Authentication',
+      description: 'Xác thực tài khoản và cấp phát JWT Token',
+    },
+    {
       name: 'Sensors',
       description: 'Quản lý thông tin cảm biến và giá trị đo tức thời',
     },
@@ -50,6 +54,11 @@ Tài liệu REST API cho Hệ thống Giám sát Môi trường & Điều khiể
     {
       name: 'System',
       description: 'Kiểm tra trạng thái hoạt động của hệ thống (Health Check)',
+    },
+  ],
+  security: [
+    {
+      bearerAuth: [],
     },
   ],
   components: {
@@ -144,6 +153,14 @@ Tài liệu REST API cho Hệ thống Giám sát Môi trường & Điều khiể
           message: { type: 'string', example: 'Mô tả thông báo lỗi' },
           error: { type: 'string', example: 'Chi tiết lỗi hệ thống' },
         },
+      },
+    },
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Nhập JWT Token nhận được từ API /api/auth/login',
       },
     },
   },

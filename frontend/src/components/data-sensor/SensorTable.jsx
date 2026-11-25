@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
-import { Thermometer, Droplets, Sun, AlertCircle } from 'lucide-react';
+import { Thermometer, Droplets, Sun, Wind, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import Badge from '../common/Badge';
 import {
   Table,
@@ -11,30 +12,27 @@ import {
   TableCell,
 } from '../ui/table';
 
-export default function SensorTable({ data }) {
-  const getSensorMeta = (type) => {
-    switch (type) {
-      case 'temperature':
-        return {
-          icon: Thermometer,
-          iconColor: 'text-orange-600',
-          variant: 'orange',
-        };
-      case 'humidity':
-        return {
-          icon: Droplets,
-          iconColor: 'text-cyan-600',
-          variant: 'cyan',
-        };
-      case 'light':
-      default:
-        return {
-          icon: Sun,
-          iconColor: 'text-amber-600',
-          variant: 'warning',
-        };
-    }
+export default function SensorTable({ data, sortConfig = { field: null, order: 'none' }, onSort }) {
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopyTime = (timeStr, id) => {
+    if (!timeStr || timeStr === 'N/A') return;
+    navigator.clipboard.writeText(timeStr);
+    setCopiedId(id);
+    toast.success(`Đã sao chép: ${timeStr}`);
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 1500);
   };
+
+  const SENSOR_META = {
+    temperature: { icon: Thermometer, iconColor: 'text-orange-600', variant: 'orange' },
+    humidity: { icon: Droplets, iconColor: 'text-cyan-600', variant: 'cyan' },
+    gas: { icon: Wind, iconColor: 'text-purple-600', variant: 'purple' },
+    light: { icon: Sun, iconColor: 'text-amber-600', variant: 'warning' },
+  };
+
+  const getSensorMeta = (type) => SENSOR_META[type] || SENSOR_META.light;
 
   if (!data || data.length === 0) {
     return (
@@ -46,15 +44,53 @@ export default function SensorTable({ data }) {
     );
   }
 
+  const isValueAsc = sortConfig?.field === 'value' && sortConfig.order === 'asc';
+  const isValueDesc = sortConfig?.field === 'value' && sortConfig.order === 'desc';
+
+  const isTimeAsc = sortConfig?.field === 'time' && sortConfig.order === 'asc';
+  const isTimeDesc = sortConfig?.field === 'time' && sortConfig.order === 'desc';
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead># ID</TableHead>
           <TableHead>Loại Cảm Biến</TableHead>
-          <TableHead>Giá Trị Đo</TableHead>
+          {/* Cột Giá Trị Đo */}
+          <TableHead
+            onClick={() => onSort && onSort('value')}
+            className="cursor-pointer select-none hover:bg-slate-50 transition-colors group"
+            title="Sắp xếp theo giá trị đo"
+          >
+            <div className="inline-flex items-center gap-1.5">
+              <span>Giá Trị Đo</span>
+              {isValueAsc ? (
+                <ArrowUp className="w-3.5 h-3.5 text-slate-700" />
+              ) : isValueDesc ? (
+                <ArrowDown className="w-3.5 h-3.5 text-slate-700" />
+              ) : (
+                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+              )}
+            </div>
+          </TableHead>
           <TableHead>Đơn Vị</TableHead>
-          <TableHead>Thời Gian Ghi Nhận</TableHead>
+          {/* Cột Thời Gian Ghi Nhận */}
+          <TableHead
+            onClick={() => onSort && onSort('time')}
+            className="cursor-pointer select-none hover:bg-slate-50 transition-colors group"
+            title="Sắp xếp theo thời gian ghi nhận"
+          >
+            <div className="inline-flex items-center gap-1.5">
+              <span>Thời Gian Ghi Nhận</span>
+              {isTimeAsc ? (
+                <ArrowUp className="w-3.5 h-3.5 text-slate-700" />
+              ) : isTimeDesc ? (
+                <ArrowDown className="w-3.5 h-3.5 text-slate-700" />
+              ) : (
+                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+              )}
+            </div>
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -92,7 +128,23 @@ export default function SensorTable({ data }) {
 
               {/* 5. Thời Gian Ghi Nhận */}
               <TableCell className="font-mono text-slate-600">
-                {formattedTime}
+                <div className="flex items-center gap-2">
+                  <span>{formattedTime}</span>
+                  {formattedTime !== 'N/A' && (
+                    <button
+                      type="button"
+                      onClick={() => handleCopyTime(formattedTime, row.id)}
+                      title="Sao chép mốc thời gian"
+                      className="p-1 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors"
+                    >
+                      {copiedId === row.id ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           );

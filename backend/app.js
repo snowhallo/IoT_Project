@@ -5,6 +5,8 @@ import sensorRoutes from './routes/sensorRoutes.js';
 import deviceRoutes from './routes/deviceRoutes.js';
 import historyRoutes from './routes/historyRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import { verifyToken } from './middleware/authMiddleware.js';
 
 const app = express();
 
@@ -20,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
  *     summary: Kiểm tra trạng thái hoạt động của Backend server
  *     tags:
  *       - System
+ *     security: []
  *     responses:
  *       200:
  *         description: Server hoạt động bình thường
@@ -51,8 +54,15 @@ app.use(
   '/api-docs',
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
-    customSiteTitle: 'IoT ESP32 Smart Home - API Documentation',
+    customSiteTitle: 'IoT ESP32 Smart Monitoring - API Documentation',
     explorer: true,
+    swaggerOptions: {
+      persistAuthorization: true,
+      docExpansion: 'list',
+      filter: true,
+      displayRequestDuration: true,
+      tryItOutEnabled: true,
+    },
   })
 );
 
@@ -62,11 +72,14 @@ app.get('/api-docs.json', (req, res) => {
   res.send(swaggerSpec);
 });
 
-// Đăng ký các Route chính
-app.use('/api', sensorRoutes);
-app.use('/api', deviceRoutes);
-app.use('/api', historyRoutes);
-app.use('/api', userRoutes);
+// Đăng ký Route xác thực tài khoản (Public không cần Token)
+app.use('/api/auth', authRoutes);
+
+// Đăng ký các Route vận hành IoT (Bảo vệ nghiêm ngặt bằng JWT Token)
+app.use('/api', verifyToken, sensorRoutes);
+app.use('/api', verifyToken, deviceRoutes);
+app.use('/api', verifyToken, historyRoutes);
+app.use('/api', verifyToken, userRoutes);
 
 export default app;
 

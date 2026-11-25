@@ -10,19 +10,21 @@ import {
 
 export default function SensorFilter({ selectedType, onSelectType }) {
   const options = [
-    { value: 'all', label: 'Tất cả cảm biến' },
-    { value: 'temperature', label: 'Nhiệt độ (Temperature)' },
-    { value: 'humidity', label: 'Độ ẩm (Humidity)' },
-    { value: 'light', label: 'Ánh sáng (Light)' },
+    { value: 'all', label: 'Tất cả dữ liệu' },
+    { value: 'temperature', label: 'Nhiệt độ (°C)' },
+    { value: 'humidity', label: 'Độ ẩm (%)' },
+    { value: 'light', label: 'Ánh sáng (Lux)' },
+    { value: 'gas', label: 'Khí Gas (ppm)' },
+    { value: 'time', label: 'Thời gian' },
   ];
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex items-center gap-2 min-w-[220px]">
+      <div className="flex items-center gap-2 min-w-[210px]">
         <Filter className="w-4 h-4 text-blue-600 shrink-0" />
         <Select value={selectedType} onValueChange={onSelectType}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Chọn loại cảm biến" />
+            <SelectValue placeholder="Chọn tiêu chí lọc" />
           </SelectTrigger>
           <SelectContent>
             {options.map((opt) => (

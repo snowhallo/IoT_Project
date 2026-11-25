@@ -38,10 +38,10 @@ export async function getSensors(req, res) {
   }
 }
 
-// 2. Lấy dữ liệu Data Sensors (kèm Lọc loại, Tìm kiếm thời gian cắt dần, Sắp xếp DESC và Phân trang)
+// 2. Lấy dữ liệu Data Sensors (kèm Lọc loại, Tìm kiếm thời gian cắt dần, Sắp xếp theo giá trị hoặc DESC thời gian và Phân trang)
 export async function getDataSensors(req, res) {
   try {
-    const { type, time, page = 1, limit = 10 } = req.query;
+    const { type, time, sortBy, order, page = 1, limit = 10 } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
 
     let whereClauses = [];
@@ -71,7 +71,13 @@ export async function getDataSensors(req, res) {
     const [countResult] = await pool.query(countSql, queryParams);
     const totalItems = countResult[0].total;
 
-    // 2. Lấy danh sách bản ghi theo trang (Luôn sắp xếp DESC theo thời gian đo)
+    // 2. Lấy danh sách bản ghi theo trang (Sắp xếp theo sortBy hoặc mặc định DESC theo thời gian đo)
+    let orderClause = 'ORDER BY d.measured_at DESC, d.id DESC';
+    if (sortBy === 'value') {
+      const dir = (order && order.toLowerCase() === 'asc') ? 'ASC' : 'DESC';
+      orderClause = `ORDER BY d.value ${dir}, d.measured_at DESC, d.id DESC`;
+    }
+
     const selectSql = `
       SELECT 
         d.id,
@@ -84,7 +90,7 @@ export async function getDataSensors(req, res) {
       FROM \`data_sensors\` d
       JOIN \`sensors\` s ON d.sensor_id = s.id
       ${whereSql}
-      ORDER BY d.measured_at DESC, d.id DESC
+      ${orderClause}
       LIMIT ? OFFSET ?
     `;
 
